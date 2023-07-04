@@ -22,6 +22,7 @@ type SigninReq struct {
 
 // Update
 type UserEditReq struct {
+	Id       int    `json:"id"`
 	Name     string `json:"name"`
 	Loginid  string `json:"loginid"`
 	Password string `json:"password"`
@@ -30,6 +31,12 @@ type UserEditReq struct {
 // Delete
 type SignoutReq struct {
 	Loginid string `json:"loginid"`
+}
+
+// ==========================-
+// common
+type GetRequest struct {
+	Id int `json:"id"`
 }
 
 // ======================================
@@ -58,6 +65,7 @@ type CategoryDReq struct {
 // ======================================
 // Create
 type TagCReq struct {
+	UserId       int    `json:"userId"`
 	CategoryId int    `json:"categoryId"`
 	TagName    string `json:"tagname"`
 }
@@ -79,6 +87,7 @@ type TagDReq struct {
 // ======================================
 // Create
 type ContentsCReq struct {
+	UserId   int    `json:"userId"`
 	CategoryId int    `json:"categoryId"`
 	Title      string `json:"title"`
 	Contents   string `json:"contents"`

@@ -1,5 +1,10 @@
 package sql
 
+import (
+	"log"
+	"test_crud/model"
+)
+
 // ==================
 // struct def
 // ==================
@@ -19,37 +24,24 @@ func NewContents() Contents {
 // Imprementation
 // ==================
 func (contents *contents) Create(userid int, content string, categoryid int, title string) {
-	sql := `
-	INSERT INTO trn_contents (usr_id, contents, category_id, del_flg, title)
-	VALUES($1, $2, $3, false, $4);
-	`
-	upd, _ := db.Prepare(sql)
-	upd.Exec(userid, content, categoryid, title)
+	record := model.TrnContents{UsrId: userid, Contents: content, CategoryId: categoryid, Title: title}
+	result := db.Create(&record)
+	if result.Error != nil {
+		log.Fatal(result.Error.Error())
+	}
 }
 
 func (contents *contents) Update(content string, title string, id int) {
-	sql := `
-	update
-		trn_contents
-	set
-		contents = $1,
-		title = $2
-	where
-		id = $3;
-	`
-	upd, _ := db.Prepare(sql)
-	upd.Exec(content, title, id)
+	var target model.TrnContents
+	db.First(&target, id)
+	target.Contents = content
+	target.Title = title
+	result := db.Save(&target)
+	if result.Error != nil {
+		log.Fatal(result.Error.Error())
+	}
 }
 
 func (contents *contents) Delete(id int) {
-	sql := `
-	update
-		trn_contents
-	set
-		del_flg = true,
-	where
-		id = $1;
-	`
-	upd, _ := db.Prepare(sql)
-	upd.Exec(id)
+	db.Delete(&model.TrnContents{}, id)
 }

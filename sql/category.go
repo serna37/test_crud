@@ -1,5 +1,10 @@
 package sql
 
+import (
+	"log"
+	"test_crud/model"
+)
+
 // ==================
 // struct def
 // ==================
@@ -19,36 +24,23 @@ func NewCategory() Category {
 // Imprementation
 // ==================
 func (category *category) Create(userid int, name string) {
-	sql := `
-	INSERT INTO mst_category (usr_id, "name", del_flg)
-	VALUES($1, $2, false);
-	`
-	upd, _ := db.Prepare(sql)
-	upd.Exec(userid, name)
+	record := model.MstCategory{UsrId: userid, Name: name}
+	result := db.Create(&record)
+	if result.Error != nil {
+		log.Fatal(result.Error.Error())
+	}
 }
 
 func (category *category) Update(id int, name string) {
-	sql := `
-	update
-		mst_category
-	set
-		"name" = $1,
-	where
-		id = $2
-	`
-	upd, _ := db.Prepare(sql)
-	upd.Exec(name, id)
+	var target model.MstCategory
+	db.First(&target, id)
+	target.Name = name
+	result := db.Save(&target)
+	if result.Error != nil {
+		log.Fatal(result.Error.Error())
+	}
 }
 
 func (category *category) Delete(id int) {
-	sql := `
-	update
-		mst_category
-	set
-		del_flg = true
-	where
-		id = $1
-	`
-	upd, _ := db.Prepare(sql)
-	upd.Exec(id)
+	db.Delete(&model.MstCategory{}, id)
 }

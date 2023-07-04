@@ -10,6 +10,8 @@ go mod init test_crud
 go install github.com/gin-gonic/gin@latest
 go get github.com/gin-contrib/cors
 go get github.com/lib/pq
+go get github.com/jinzhu/gorm
+go get github.com/olahol/melody
 ```
 
 ## run

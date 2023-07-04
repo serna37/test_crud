@@ -51,13 +51,47 @@ func main() {
 	// regist API endpoints
 	rg := r.Group("/mk6v2")
 
+	rg.POST("/ping", ping)
+
 	// usr
-	rg1 := rg.Group("/usr")
 	usr := service.NewUsr()
+	rg1 := rg.Group("/usr")
 	rg1.POST("/signup", usr.Signup)
 	rg1.POST("/signin", usr.Signin)
+	rg1.POST("/update", usr.Update)
+	rg1.POST("/delete", usr.Delete)
+	rg1.POST("/getcatetag", usr.GetCateTag)
+	rg1.POST("/getalldata", usr.GetAllData)
+
+	// category
+	cate := service.NewCate()
+	rg2 := rg.Group("/category")
+	rg2.POST("/create", cate.Create)
+	rg2.POST("/update", cate.Update)
+	rg2.POST("/delete", cate.Delete)
+
+	// tag
+	tag := service.NewTag()
+	rg3 := rg.Group("/tag")
+	rg3.POST("/create", tag.Create)
+	rg3.POST("/update", tag.Update)
+	rg3.POST("/delete", tag.Delete)
+
+	// contents
+	contnt := service.NewContnt()
+	rg4 := rg.Group("/contents")
+	rg4.POST("/create", contnt.Create)
+	rg4.POST("/update", contnt.Update)
+	rg4.POST("/delete", contnt.Delete)
 
 	r.Run(":8181")
+}
+
+// for test
+func ping(c *gin.Context) {
+//	uu := sql.NewUsr()
+//	uu.GetAllData(1)
+	c.JSON(http.StatusOK, gin.H{"status": 0})
 }
 
 // TODO call API sample

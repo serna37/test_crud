@@ -5,12 +5,16 @@ import (
 )
 
 type MstUsr struct {
-	Id          int       `db:"id"`            // ID
-	Name        string    `db:"name"`          // 名前
-	UsrLoginId  string    `db:"usr_login_id"`  // ログインID
-	UsrPassWord string    `db:"usr_pass_word"` // パスワード
-	AuthToken   string    `db:"auth_token"`    // 認証トークン
-	LastLogin   time.Time `db:"last_login"`    // 最終ログイン日時
+	Id          int       // ID
+	Name        string    // 名前
+	UsrLoginId  string    // ログインID
+	UsrPassWord string    // パスワード
+	AuthToken   string    // 認証トークン
+	LastLogin   time.Time // 最終ログイン日時
+}
+
+func (MstUsr) TableName() string {
+	return "mst_usr"
 }
 
 func NewMstUsr(id int, name string, usrLoginId string, usrPassWord string, authToken string, lastLogin time.Time) *MstUsr {
@@ -31,6 +35,10 @@ type MstCategory struct {
 	DelFlg bool   // 削除フラグ
 }
 
+func (MstCategory) TableName() string {
+	return "mst_category"
+}
+
 func NewMstCategory(id int, usrId int, name string, delFlg bool) *MstCategory {
 	u := new(MstCategory)
 	u.Id = id
@@ -46,6 +54,10 @@ type MstTag struct {
 	Name       string // タグ名
 	DelFlg     bool   // 削除フラグ
 	CategoryId int    // カテゴリID
+}
+
+func (MstTag) TableName() string {
+	return "mst_tag"
 }
 
 func NewMstTag(id int, usrId int, name string, delFlg bool, categoryId int) *MstTag {
@@ -67,6 +79,10 @@ type TrnContents struct {
 	Title      string // タイトル
 }
 
+func (TrnContents) TableName() string {
+	return "trn_contents"
+}
+
 func NewTrnContents(id int, usrId int, contents string, categoryId int, delFlg bool, title string) *TrnContents {
 	u := new(TrnContents)
 	u.Id = id
@@ -84,6 +100,10 @@ type TrnContentsTag struct {
 	TagId     int // タグID
 }
 
+func (TrnContentsTag) TableName() string {
+	return "trn_contents_tag"
+}
+
 func NewTrnContentsTag(id int, contentId int, tagId int) *TrnContentsTag {
 	u := new(TrnContentsTag)
 	u.Id = id
@@ -98,6 +118,10 @@ type TrnChatRoom struct {
 	CreaterId int       // 作成者ID
 	DelFlg    bool      // 削除フラグ
 	CreatedAt time.Time // 作成日時
+}
+
+func (TrnChatRoom) TableName() string {
+	return "trn_chat_room"
 }
 
 func NewTrnChatRoom(id int, name string, createrId int, delFlg bool, createdAt time.Time) *TrnChatRoom {
@@ -119,6 +143,10 @@ type TrnChatRoomMember struct {
 	Inviter    int       // 招待者
 }
 
+func (TrnChatRoomMember) TableName() string {
+	return "trn_chat_room_member"
+}
+
 func NewTrnChatRoomMember(id int, chatRoomId int, joinerId int, delFlg bool, joinedAt time.Time, inviter int) *TrnChatRoomMember {
 	u := new(TrnChatRoomMember)
 	u.Id = id
@@ -136,6 +164,10 @@ type TrnChatMsg struct {
 	FromId     int       // 発言者ID
 	FromAt     time.Time // 発言日時
 	Msg        string    // メッセージ
+}
+
+func (TrnChatMsg) TableName() string {
+	return "trn_chat_msg"
 }
 
 func NewTrnChatMsg(id int, chatRoomId int, fromId int, fromAt time.Time, msg string) *TrnChatMsg {

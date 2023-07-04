@@ -1,5 +1,10 @@
 package sql
 
+import (
+	"log"
+	"test_crud/model"
+)
+
 // ==================
 // struct def
 // ==================
@@ -19,36 +24,23 @@ func NewTag() Tag {
 // Imprementation
 // ==================
 func (tag *tag) Create(userid int, name string, categoryid int) {
-	sql := `
-	INSERT INTO mst_tag (usr_id, "name", del_flg, category_id)
-	VALUES($1, $2, false, $3);
-	`
-	upd, _ := db.Prepare(sql)
-	upd.Exec(userid, name, categoryid)
+	record := model.MstTag{UsrId: userid, Name: name, CategoryId: categoryid}
+	result := db.Create(&record)
+	if result.Error != nil {
+		log.Fatal(result.Error.Error())
+	}
 }
 
 func (tag *tag) Update(id int, name string) {
-	sql := `
-	update
-		mst_tag
-	set
-		"name" = $1
-	where
-		id = $2;
-	`
-	upd, _ := db.Prepare(sql)
-	upd.Exec(name, id)
+	var target model.MstTag
+	db.First(&target, id)
+	target.Name = name
+	result := db.Save(&target)
+	if result.Error != nil {
+		log.Fatal(result.Error.Error())
+	}
 }
 
 func (tag *tag) Delete(id int) {
-	sql := `
-	update
-		mst_tag
-	set
-		del_flg = false
-	where
-		id = $1;
-	`
-	upd, _ := db.Prepare(sql)
-	upd.Exec(id)
+	db.Delete(&model.MstTag{}, id)
 }

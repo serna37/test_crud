@@ -1,0 +1,78 @@
+# A valid snippet should starts with:
+#
+#		snippet trigger_word [ "description" [ options ] ]
+#
+# and end with:
+#
+#		endsnippet
+#
+# Snippet options:
+#
+#		b - Beginning of line.
+#		i - In-word expansion.
+#		w - Word boundary.
+#		r - Regular expression
+#		e - Custom context snippet
+#		A - Snippet will be triggered automatically, when condition matches.
+#
+# Basic example:
+#
+#		snippet emitter "emitter properties" b
+#		private readonly ${1} = new Emitter<$2>()
+#		public readonly ${1/^_(.*)/$1/}: Event<$2> = this.$1.event
+#		endsnippet
+#
+# Online reference: https://github.com/SirVer/ultisnips/blob/master/doc/UltiSnips.txt
+
+snippet reciever "Create Reciever Templete" b
+// ==================
+// struct def
+// ==================
+type ${1} struct {
+	// TODO members
+}
+type ${2} interface {
+	// TODO methods
+}
+func New${2}() ${2} {
+	return &${1}{}
+}
+// ==================
+// Imprementation
+// ==================
+// TODO use meth with snippets
+meth
+endsnippet
+
+snippet insert "gorm insert" b
+record := ${1:"struct init"}
+result := db.Create(&record)
+if result.Error != nil {
+	log.Fatal(result.Error.Error())
+}
+endsnippet
+
+snippet update "gorm update merge" b
+var target ${1:"struct"}
+db.First(&target, ${2:"primary key"})
+target.${3:"upd column"} = ${4:"new value"}
+result := db.Save(&target)
+if result.Error != nil {
+	log.Fatal(result.Error.Error())
+}
+endsnippet
+
+snippet delete_one "gorm delete by pk" b
+db.Delete(&${1:"struct"}{}, ${2:"primary key"})
+endsnippet
+
+snippet select_one "gorm select by pk" b
+var row ${1:"struct"}
+db.First(&row, ${2:"primary key"})
+endsnippet
+
+snippet select_where_one "gorm select where one record" b
+var row ${1:"struct"}
+db.Where("${2:column} = ?", ${3:"value"}).First(&row)
+endsnippet
+

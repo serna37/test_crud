@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"log"
 	"test_crud/model"
 	"time"
 )
@@ -16,7 +17,7 @@ type Usr interface {
 	Read(loginid string, password string) model.MstUsr
 	Update(id int, name string, loginid string, password string)
 	Delete(id int)
-	GetCateTag(id int) []model.CateTag
+	GetCateTag(id int) []model.CateTags
 	GetAllData(id int) []model.AllData
 }
 
@@ -28,159 +29,64 @@ func NewUsr() Usr {
 // Imprementation
 // ==================
 func (usr *usr) Create(name string, loginid string, password string, authtoken string) {
-	sql := `
-		INSERT INTO mst_usr ("name", usr_login_id, usr_pass_word, auth_token, last_login)
-		VALUES($1, $2, $3, $4, CURRENT_TIMESTAMP);
-		`
-	upd, _ := db.Prepare(sql)
-	upd.Exec(name, loginid, password, authtoken)
+	record := model.MstUsr{Name: name, UsrLoginId: loginid, UsrPassWord: password, AuthToken: authtoken, LastLogin: time.Now()}
+	result := db.Create(&record)
+	if result.Error != nil {
+		log.Fatal(result.Error.Error())
+	}
 }
 
 func (usr *usr) Check(loginid string) bool {
-	sql := `
-	select id from mst_usr where usr_login_id = $1;
-	`
-	pp, _ := db.Prepare(sql)
-	rows, _ := pp.Query(loginid)
-	defer rows.Close()
-	var res []int
-	for rows.Next() {
-		var row int
-		rows.Scan(&row)
-		res = append(res, row)
+	var row model.MstUsr
+	db.Where("usr_login_id = ?", loginid).First(&row)
+	if row.Name != "" {
+		return false
 	}
-	return len(res) == 0
+	return true
 }
 
 func (usr *usr) Read(loginid string, password string) model.MstUsr {
-	sql := `
-		select
-			id,
-			"name",
-			usr_login_id,
-			usr_pass_word,
-			auth_token,
-			last_login
-		from
-			mst_usr
-		where
-			usr_login_id = $1
-			and usr_pass_word = $2;
-		`
-	pp, _ := db.Prepare(sql)
-	rows, _ := pp.Query(loginid, password)
-	defer rows.Close()
-	var res []model.MstUsr
 	var row model.MstUsr
-	for rows.Next() {
-		rows.Scan(&row.Id, &row.Name, &row.UsrLoginId, &row.UsrPassWord, &row.AuthToken, &row.LastLogin)
-		res = append(res, row)
-	}
-	if len(res) == 0 {
-		return *model.NewMstUsr(-1, "", "", "", "", time.Now())
-	}
-	return res[0]
+	db.Where("usr_login_id = ? AND usr_pass_word = ?", loginid, password).First(&row)
+	return row
 }
 
 func (usr *usr) Update(id int, name string, loginid string, password string) {
-	var sql string
 	if name != "" {
-		sql = `
-		update
-			mst_usr
-		set
-			"name" = $1,
-			usr_login_id = $2,
-			usr_pass_word = $3,
-		where
-			id = $4
-		`
+		// update user info
+		var target model.MstUsr
+		db.First(&target, id)
+		target.Name = name
+		target.UsrLoginId = loginid
+		target.UsrPassWord = password
+		result := db.Save(&target)
+		if result.Error != nil {
+			log.Fatal(result.Error.Error())
+		}
 	} else {
-		sql = `
-		update
-			mst_usr
-		set
-			last_login = CURRENT_TIMESTAMP
-		where
-			id = $1
-		`
-	}
-	upd, _ := db.Prepare(sql)
-	if name != "" {
-		upd.Exec(name, loginid, password, id)
-	} else {
-		upd.Exec(id)
+		// login
+		var target model.MstUsr
+		db.First(&target, id)
+		target.LastLogin = time.Now()
+		result := db.Save(&target)
+		if result.Error != nil {
+			log.Fatal(result.Error.Error())
+		}
 	}
 }
 
 func (usr *usr) Delete(id int) {
-	sql := `
-	delete
-	from
-		mst_usr
-	where
-		id = $1;
-	`
-	upd, _ := db.Prepare(sql)
-	upd.Exec(id)
+	db.Delete(&model.MstUsr{}, id)
 }
 
-// have to reduce
-func (usr *usr) GetCateTag(id int) []model.CateTag {
-	sql := `
-select
-mc.id category_id,
-mc.name category_name,
-mt.id tag_id,
-mt."name" tag_name
-from mst_category mc 
-left join mst_tag mt on mc.id = mt.category_id 
-where mc.usr_id = $1
-and mc.del_flg = false 
-and mt.del_flg = false 
-;
-	`
-	pp, _ := db.Prepare(sql)
-	rows, _ := pp.Query(id)
-	defer rows.Close()
-	var res []model.CateTag
-	for rows.Next() {
-		var row model.CateTag
-		rows.Scan(&row.CategoryId, &row.CategoryName, &row.TagId, &row.TagName)
-		res = append(res, row)
-	}
-	return res
+func (usr *usr) GetCateTag(id int) []model.CateTags {
+	var cate []model.CateTags
+	db.Preload("MstTags", "del_flg = ?", false).Find(&cate, "mst_category.usr_id = ? AND mst_category.del_flg = false", id)
+	return cate
 }
 
-// have to reduce
 func (usr *usr) GetAllData(id int) []model.AllData {
-	sql := `
-select
-mc.id category_id,
-mc.name category_name,
-tc.id content_id,
-tc.title content_title,
-tc.contents content_body,
-mt.id tag_id,
-mt."name" tag_name
-from mst_category mc
-left join trn_contents tc on tc.category_id = mc.id
-left join trn_contents_tag tct on tct.content_id = tc.id
-left join mst_tag mt on mt.id = tct.tag_id
-where mc.usr_id = $1
-and mc.del_flg = false 
-and tc.del_flg = false
-and mt.del_flg = false
-;
-	`
-	pp, _ := db.Prepare(sql)
-	rows, _ := pp.Query(id)
-	defer rows.Close()
-	var res []model.AllData
-	for rows.Next() {
-		var row model.AllData
-		rows.Scan(&row.CategoryId, &row.CategoryName, &row.ContentId, &row.ContentTitle, &row.ContentBody, &row.TagId, &row.TagName)
-		res = append(res, row)
-	}
-	return res
+	var result []model.AllData
+	db.Preload("AllContent", "trn_contents.del_flg = ?", false).Preload("AllContent.Tags.MstTags", "mst_tag.del_flg = ?", false).Find(&result, "mst_category.usr_id = ? AND mst_category.del_flg = false", id)
+	return result
 }
