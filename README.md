@@ -1,4 +1,4 @@
-# Golang + Gin + PostgreSQL
+# Golang + Gin + GORM + PostgreSQL + melody(websocket)
 
 ## initiate
 ```sh
