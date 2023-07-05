@@ -29,13 +29,13 @@ lsof -P -i:8181
 kill {PID}
 ```
 
-## create struct from ddl
+## [Tool] create struct from ddl
 https://qiita.com/neras_1215/items/f5b6e29c9fb870f1b4e3#go
 
 # [OverView] package structure
 
 ## package:model
-- db entity struct
+- db entity / dto struct
 - api request struct
 - api response struct
 
@@ -43,7 +43,7 @@ https://qiita.com/neras_1215/items/f5b6e29c9fb870f1b4e3#go
 api implementation
 
 ## package:sql
-query, ddl
+query, ddl, connection-setting
 
 # [OverView]Design
 ## IFs
