@@ -1,3 +1,4 @@
 # db profile
 sql/profile.go
 test_crud
+nohup.out

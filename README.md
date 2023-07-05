@@ -16,10 +16,17 @@ go get github.com/olahol/melody
 
 ## run
 ```sh
-# normal
+# run (for degub)
 go run .
-# detach
-go run . &
+
+# build
+go build
+# run detach
+nohup ./test_crud &
+
+# checkport
+lsof -P -i:8181
+kill {PID}
 ```
 
 ## create struct from ddl
