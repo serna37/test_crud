@@ -1,11 +1,9 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
-	"strings"
 	"test_crud/service"
 	"test_crud/sql"
 	"time"
@@ -27,8 +25,6 @@ func main() {
 		AllowOrigins: []string{
 			"http://localhost:3000",
 			"http://127.0.0.1:3000",
-			"http://mk6.neras-sta.com",
-			"https://mk6.neras-sta.com",
 			"https://serna37.github.io",
 		},
 		AllowMethods: []string{
@@ -50,8 +46,6 @@ func main() {
 
 	// regist API endpoints
 	rg := r.Group("/mk6v2")
-
-	rg.POST("/ping", ping)
 
 	// usr
 	usr := service.NewUsr()
@@ -84,62 +78,49 @@ func main() {
 	rg4.POST("/update", contnt.Update)
 	rg4.POST("/delete", contnt.Delete)
 
+	// chatroom
+	chtrm := service.NewChatroom()
+	rg5 := rg.Group("/chatroom")
+	rg5.POST("/create", chtrm.Create)
+	rg5.POST("/join", chtrm.Join)
+	rg5.POST("/read", chtrm.Read)
+	rg5.POST("/update", chtrm.Update)
+	rg5.POST("/remove", chtrm.RemoveMember)
+	rg5.POST("/delete", chtrm.Delete)
+
+	// chat
+	service.WSIni()
+	rg.GET("/msg/:roomid", service.MsgSync)
+
+	// weather
+	rg.GET("/weather", test)
+
+	// ping
+	rg.POST("/ping", ping)
+
 	r.Run(":8181")
 }
 
 // for test
 func ping(c *gin.Context) {
-//	uu := sql.NewUsr()
-//	uu.GetAllData(1)
+	//	uu := sql.NewUsr()
+	//	uu.GetAllData(1)
 	c.JSON(http.StatusOK, gin.H{"status": 0})
 }
 
-// TODO call API sample
 func test(c *gin.Context) {
-	var m = [...]string{
-		"AAAAAAAAA",
-		"AAAAAAAAA",
-		"AAAAAAAAA",
-		"AAAAAAAAA",
-		"AAAAAAAAA",
-		"AAAAAAAAA",
-		"AAAAAAAAA",
-	}
-	fmt.Printf(strings.Join(m[:], ","))
 
-	url := "https://neras-sta.com/mk6/getdata"
-	authHeaderName := "x-cdata-authtoken"
-	authHeaderValue := "7y3E6q4b6V1v9f0D2m9j"
+	openweatherendpoint := "http://api.openweathermap.org/data/2.5/forecast?q=Tokyo,JP&appid=55426606e82455879b287daa26fc9204&lang=ja&units=metric"
 
-	req, _ := http.NewRequest(http.MethodPost, url, nil)
-	//req.Host = "neras-sta.com"
-	req.Header.Set(authHeaderName, authHeaderValue)
-
-	client := new(http.Client)
-	resp, err := client.Do(req)
+	res, err := http.Get(openweatherendpoint)
 	if err != nil {
-		fmt.Println("Error Request:", err)
-		return
+		log.Fatal(err.Error())
 	}
 
-	type Contents struct {
-		Id        int      `json:"id"`
-		Category  string   `json:"category"`
-		Thumbnail string   `json:"thumbnail"`
-		Title     string   `json:"title"`
-		DataUrl   []string `json:"dataUrl"`
-		ViewCnt   int      `json:"viewCnt"`
-		LikeCnt   int      `json:"likeCnt"`
-		Tags      []string `json:"tags"`
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.Fatal(err.Error())
 	}
-
-	type Res struct {
-		Contents []Contents
-		tags     []string
-	}
-
-	defer resp.Body.Close()
-	var response Res
-	json.NewDecoder(resp.Body).Decode(&response)
-	log.Printf(response.Contents[0].DataUrl[0])
+	// []byte -> string
+	c.JSON(http.StatusOK, gin.H{"jsondata": string(body)})
 }

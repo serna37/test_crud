@@ -28,6 +28,10 @@ func NewTag() Tag {
 // Imprementation
 // ==================
 func (tag *tag) Create(c *gin.Context) {
+	usrid := CookieChk(c)
+	if usrid == 0 {
+		return
+	}
 	var req model.TagCReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: err.Error()})
@@ -35,12 +39,17 @@ func (tag *tag) Create(c *gin.Context) {
 	}
 	if req.UserId == 0 || req.CategoryId == 0 || len(req.TagName) == 0 || len(req.TagName) > 60 {
 		c.JSON(http.StatusOK, model.BaseRes{Status: 1, Message: "invalid value"})
+		return
 	}
 	tag.sql.Create(req.UserId, req.TagName, req.CategoryId)
 	c.JSON(http.StatusOK, model.BaseRes{Status: 0, Message: "created"})
 }
 
 func (tag *tag) Update(c *gin.Context) {
+	usrid := CookieChk(c)
+	if usrid == 0 {
+		return
+	}
 	var req model.TagUReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: err.Error()})
@@ -48,12 +57,17 @@ func (tag *tag) Update(c *gin.Context) {
 	}
 	if req.TagId == 0 || len(req.TagName) == 0 || len(req.TagName) > 60 {
 		c.JSON(http.StatusOK, model.BaseRes{Status: 1, Message: "invalid value"})
+		return
 	}
 	tag.sql.Update(req.TagId, req.TagName)
 	c.JSON(http.StatusOK, model.BaseRes{Status: 0, Message: "updated"})
 }
 
 func (tag *tag) Delete(c *gin.Context) {
+	usrid := CookieChk(c)
+	if usrid == 0 {
+		return
+	}
 	var req model.TagDReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: err.Error()})
@@ -61,6 +75,7 @@ func (tag *tag) Delete(c *gin.Context) {
 	}
 	if req.TagId == 0 {
 		c.JSON(http.StatusOK, model.BaseRes{Status: 1, Message: "invalid value"})
+		return
 	}
 	tag.sql.Delete(req.TagId)
 	c.JSON(http.StatusOK, model.BaseRes{Status: 0, Message: "deleted"})

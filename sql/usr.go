@@ -14,6 +14,7 @@ type usr struct {
 type Usr interface {
 	Create(name string, loginid string, password string, authtoken string)
 	Check(loginid string) bool
+	Auth(token string) int
 	Read(loginid string, password string) model.MstUsr
 	Update(id int, name string, loginid string, password string)
 	Delete(id int)
@@ -43,6 +44,12 @@ func (usr *usr) Check(loginid string) bool {
 		return false
 	}
 	return true
+}
+
+func (usr *usr) Auth(token string) int {
+	var row model.MstUsr
+	db.Where("auth_token = ?", token).First(&row)
+	return row.Id
 }
 
 func (usr *usr) Read(loginid string, password string) model.MstUsr {

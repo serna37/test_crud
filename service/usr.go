@@ -32,13 +32,36 @@ func NewUsr() Usr {
 // Imprementation
 // ==================
 
-func RandomString(n int) string {
+func randomString(n int) string {
 	var letter = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 	b := make([]rune, n)
 	for i := range b {
 		b[i] = letter[rand.Intn(len(letter))]
 	}
 	return string(b)
+}
+
+
+func CookieChk(c *gin.Context) int {
+	result := true
+	cookie, err := c.Cookie("authtoken")
+	if err != nil {
+		result = false
+	}
+	if len(cookie) == 0 {
+		result = false
+	}
+	if !result {
+		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: "unauthrized"})
+		return 0
+	}
+	usrid := sql.NewUsr().Auth(cookie)
+	result = usrid != 0
+	if !result {
+		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: "unauthrized"})
+		return 0
+	}
+	return usrid
 }
 
 func (usr *usr) Signup(c *gin.Context) {
@@ -64,8 +87,13 @@ func (usr *usr) Signup(c *gin.Context) {
 		return
 	}
 
-	authtoken := RandomString(10)
+	authtoken := randomString(10)
 	usr.sql.Create(req.Name, req.Loginid, req.Password, authtoken)
+
+	// set cookie
+	c.SetSameSite(http.SameSiteNoneMode)
+	c.SetCookie("authtoken", authtoken, 3600, "/", "localhost", true, false)
+	c.SetCookie("authtoken", authtoken, 3600, "/", "serna37.github.io", true, false)
 
 	option := gin.H{"domain": "serna37.github.io", "path": "/", "sameSite": "None"}
 	c.JSON(http.StatusOK, gin.H{"status": 0, "cookie": authtoken, "option": option})
@@ -90,7 +118,13 @@ func (usr *usr) Signin(c *gin.Context) {
 	}
 
 	usr.sql.Update(userdata.Id, "", "", "")
+
+	// set cookie
 	cookie := userdata.AuthToken
+	c.SetSameSite(http.SameSiteNoneMode)
+	c.SetCookie("authtoken", cookie, 3600, "/", "localhost", true, false)
+	c.SetCookie("authtoken", cookie, 3600, "/", "serna37.github.io", true, false)
+
 	option := gin.H{"domain": "serna37.github.io", "path": "/", "sameSite": "None"}
 	c.JSON(http.StatusOK, gin.H{"status": 0, "cookie": cookie, "option": option})
 	log.Printf("Signin end")
@@ -99,6 +133,10 @@ func (usr *usr) Signin(c *gin.Context) {
 func (usr *usr) Update(c *gin.Context) {
 	log.Printf("userinfo edit start")
 
+	usrid := CookieChk(c)
+	if usrid == 0 {
+		return
+	}
 	var req model.UserEditReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: err.Error()})
@@ -124,14 +162,26 @@ func (usr *usr) Update(c *gin.Context) {
 }
 
 func (usr *usr) Delete(c *gin.Context) {
+	usrid := CookieChk(c)
+	if usrid == 0 {
+		return
+	}
 	// no function
 	c.JSON(http.StatusOK, model.BaseRes{Status: 1, Message: "this function doesnot supported"})
 }
 
 func (usr *usr) GetCateTag(c *gin.Context) {
+	usrid := CookieChk(c)
+	if usrid == 0 {
+		return
+	}
 	var req model.GetRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: err.Error()})
+		return
+	}
+	if req.Id != usrid {
+		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: "unauthrized"})
 		return
 	}
 	response := usr.sql.GetCateTag(req.Id)
@@ -139,9 +189,17 @@ func (usr *usr) GetCateTag(c *gin.Context) {
 }
 
 func (usr *usr) GetAllData(c *gin.Context) {
+	usrid := CookieChk(c)
+	if usrid == 0 {
+		return
+	}
 	var req model.GetRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: err.Error()})
+		return
+	}
+	if req.Id != usrid {
+		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: "unauthrized"})
 		return
 	}
 	response := usr.sql.GetAllData(req.Id)

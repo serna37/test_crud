@@ -128,6 +128,11 @@ type ChatRoomUReq struct {
 	RoomName string `json:"roomName"`
 }
 
+type ChatRoomJoinReq struct {
+	ChatRoomId int `json:"roomId"`
+	JoinnersLoginId string `json:"joinnerloginid"`
+}
+
 // Delete
 type ChatRoomDReq struct {
 	UserId     int `json:"userId"`
@@ -139,10 +144,8 @@ type ChatRoomDReq struct {
 // ======================================
 // Create
 type ChatMsgCReq struct {
-	UserId int       `json:"userId"`
-	RoomId int       `json:"roomId"`
+	UserId string       `json:"userId"`
 	Msg    string    `json:"msg"`
-	FromAt time.Time `json:"fromAt"`
 }
 
 // Read

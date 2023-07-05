@@ -28,12 +28,16 @@ func NewCate() Cate {
 // Imprementation
 // ==================
 func (cate *cate) Create(c *gin.Context) {
+	usrid := CookieChk(c)
+	if usrid == 0 {
+		return
+	}
 	var req model.CategoryCReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: err.Error()})
 		return
 	}
-	if req.UserId == 0 || len(req.CategoryName) == 0 || len(req.CategoryName) > 60 {
+	if req.UserId == 0 || req.UserId != usrid || len(req.CategoryName) == 0 || len(req.CategoryName) > 60 {
 		c.JSON(http.StatusOK, model.BaseRes{Status: 1, Message: "invalid value"})
 		return
 	}
@@ -42,6 +46,10 @@ func (cate *cate) Create(c *gin.Context) {
 }
 
 func (cate *cate) Update(c *gin.Context) {
+	usrid := CookieChk(c)
+	if usrid == 0 {
+		return
+	}
 	var req model.CategoryUReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: err.Error()})
@@ -56,6 +64,10 @@ func (cate *cate) Update(c *gin.Context) {
 }
 
 func (cate *cate) Delete(c *gin.Context) {
+	usrid := CookieChk(c)
+	if usrid == 0 {
+		return
+	}
 	var req model.CategoryDReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: err.Error()})

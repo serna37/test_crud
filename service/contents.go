@@ -28,6 +28,10 @@ func NewContnt() Contnt {
 // Imprementation
 // ==================
 func (contn *contn) Create(c *gin.Context) {
+	usrid := CookieChk(c)
+	if usrid == 0 {
+		return
+	}
 	var req model.ContentsCReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: err.Error()})
@@ -35,12 +39,17 @@ func (contn *contn) Create(c *gin.Context) {
 	}
 	if req.UserId == 0 || req.CategoryId == 0 || len(req.Title) == 0 || len(req.Title) > 60 {
 		c.JSON(http.StatusOK, model.BaseRes{Status: 1, Message: "invalid value"})
+		return
 	}
 	contn.sql.Create(req.UserId, req.Contents, req.CategoryId, req.Title)
 	c.JSON(http.StatusOK, model.BaseRes{Status: 0, Message: "created"})
 }
 
 func (contn *contn) Update(c *gin.Context) {
+	usrid := CookieChk(c)
+	if usrid == 0 {
+		return
+	}
 	var req model.ContentsUReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: err.Error()})
@@ -48,12 +57,17 @@ func (contn *contn) Update(c *gin.Context) {
 	}
 	if req.ContentsId == 0 || len(req.Title) == 0 || len(req.Title) > 60 {
 		c.JSON(http.StatusOK, model.BaseRes{Status: 1, Message: "invalid value"})
+		return
 	}
 	contn.sql.Update(req.Contents, req.Title, req.ContentsId)
 	c.JSON(http.StatusOK, model.BaseRes{Status: 0, Message: "updated"})
 }
 
 func (contn *contn) Delete(c *gin.Context) {
+	usrid := CookieChk(c)
+	if usrid == 0 {
+		return
+	}
 	var req model.ContentsDReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: err.Error()})
@@ -61,6 +75,7 @@ func (contn *contn) Delete(c *gin.Context) {
 	}
 	if req.ContentsId == 0 {
 		c.JSON(http.StatusOK, model.BaseRes{Status: 1, Message: "invalid value"})
+		return
 	}
 	contn.sql.Delete(req.ContentsId)
 	c.JSON(http.StatusOK, model.BaseRes{Status: 0, Message: "deleted"})
