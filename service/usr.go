@@ -44,7 +44,7 @@ func randomString(_ int, basicauth string) string {
 }
 
 func CookieChk(c *gin.Context) int {
-	return 1
+	//return 1
 	result := true
 	cookie, err := c.Cookie("authtoken")
 	if err != nil {
