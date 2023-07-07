@@ -12,7 +12,7 @@ import (
 type usr struct {
 }
 type Usr interface {
-	Create(name string, loginid string, password string, authtoken string)
+	Create(name string, loginid string, password string, authtoken string) int
 	Check(loginid string) bool
 	Auth(token string) int
 	Read(loginid string, password string) model.MstUsr
@@ -29,12 +29,13 @@ func NewUsr() Usr {
 // ==================
 // Imprementation
 // ==================
-func (usr *usr) Create(name string, loginid string, password string, authtoken string) {
+func (usr *usr) Create(name string, loginid string, password string, authtoken string) int {
 	record := model.MstUsr{Name: name, UsrLoginId: loginid, UsrPassWord: password, AuthToken: authtoken, LastLogin: time.Now()}
 	result := db.Create(&record)
 	if result.Error != nil {
 		log.Fatal(result.Error.Error())
 	}
+	return record.Id
 }
 
 func (usr *usr) Check(loginid string) bool {

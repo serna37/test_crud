@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/gin-gonic/gin"
 	"log"
-	"math/rand"
+	//"math/rand"
 	"net/http"
 	"test_crud/model"
 	"test_crud/sql"
@@ -32,17 +32,19 @@ func NewUsr() Usr {
 // Imprementation
 // ==================
 
-func randomString(n int) string {
-	var letter = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letter[rand.Intn(len(letter))]
-	}
-	return string(b)
+func randomString(_ int, basicauth string) string {
+	// TODO crypt
+	return basicauth
+//	var letter = []rune(basicauth)
+//	b := make([]rune, n)
+//	for i := range b {
+//		b[i] = letter[rand.Intn(len(letter))]
+//	}
+//	return string(b)
 }
 
-
 func CookieChk(c *gin.Context) int {
+	return 1
 	result := true
 	cookie, err := c.Cookie("authtoken")
 	if err != nil {
@@ -87,16 +89,16 @@ func (usr *usr) Signup(c *gin.Context) {
 		return
 	}
 
-	authtoken := randomString(10)
-	usr.sql.Create(req.Name, req.Loginid, req.Password, authtoken)
+	authtoken := randomString(10, req.Loginid+req.Password)
+	userid := usr.sql.Create(req.Name, req.Loginid, req.Password, authtoken)
 
 	// set cookie
 	c.SetSameSite(http.SameSiteNoneMode)
-	c.SetCookie("authtoken", authtoken, 3600, "/", "localhost", true, false)
+	c.SetCookie("authtoken", authtoken, 3600, "/", "localhost:3000", true, false)
 	c.SetCookie("authtoken", authtoken, 3600, "/", "serna37.github.io", true, false)
 
 	option := gin.H{"domain": "serna37.github.io", "path": "/", "sameSite": "None"}
-	c.JSON(http.StatusOK, gin.H{"status": 0, "cookie": authtoken, "option": option})
+	c.JSON(http.StatusOK, gin.H{"status": 0, "cookie": authtoken, "option": option, "userid": userid})
 	log.Printf("Signup end")
 }
 
@@ -122,11 +124,11 @@ func (usr *usr) Signin(c *gin.Context) {
 	// set cookie
 	cookie := userdata.AuthToken
 	c.SetSameSite(http.SameSiteNoneMode)
-	c.SetCookie("authtoken", cookie, 3600, "/", "localhost", true, false)
+	c.SetCookie("authtoken", cookie, 3600, "/", "localhost", false, false)
 	c.SetCookie("authtoken", cookie, 3600, "/", "serna37.github.io", true, false)
 
 	option := gin.H{"domain": "serna37.github.io", "path": "/", "sameSite": "None"}
-	c.JSON(http.StatusOK, gin.H{"status": 0, "cookie": cookie, "option": option})
+	c.JSON(http.StatusOK, gin.H{"status": 0, "cookie": cookie, "option": option, "userid": userdata.Id, "username": userdata.Name})
 	log.Printf("Signin end")
 }
 
