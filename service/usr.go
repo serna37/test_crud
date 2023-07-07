@@ -95,7 +95,7 @@ func (usr *usr) Signup(c *gin.Context) {
 	// set cookie
 	c.SetSameSite(http.SameSiteNoneMode)
 	c.SetCookie("authtoken", authtoken, 3600, "/", "localhost:3000", true, false)
-	c.SetCookie("authtoken", authtoken, 3600, "/", "serna37.github.io", true, false)
+	c.SetCookie("authtoken", authtoken, 3600, "/test", "serna37.github.io", true, false)
 
 	option := gin.H{"domain": "serna37.github.io", "path": "/", "sameSite": "None"}
 	c.JSON(http.StatusOK, gin.H{"status": 0, "cookie": authtoken, "option": option, "userid": userid})
@@ -125,7 +125,7 @@ func (usr *usr) Signin(c *gin.Context) {
 	cookie := userdata.AuthToken
 	c.SetSameSite(http.SameSiteNoneMode)
 	c.SetCookie("authtoken", cookie, 3600, "/", "localhost", false, false)
-	c.SetCookie("authtoken", cookie, 3600, "/", "serna37.github.io", true, false)
+	c.SetCookie("authtoken", cookie, 3600, "/test", "serna37.github.io", true, false)
 
 	option := gin.H{"domain": "serna37.github.io", "path": "/", "sameSite": "None"}
 	c.JSON(http.StatusOK, gin.H{"status": 0, "cookie": cookie, "option": option, "userid": userdata.Id, "username": userdata.Name})
