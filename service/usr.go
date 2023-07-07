@@ -60,7 +60,7 @@ func CookieChk(c *gin.Context) int {
 	usrid := sql.NewUsr().Auth(cookie)
 	result = usrid != 0
 	if !result {
-		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: "unauthrized"})
+		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: "unrecognized user"})
 		return 0
 	}
 	return usrid
