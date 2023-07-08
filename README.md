@@ -27,6 +27,9 @@ nohup ./test_crud &
 # checkport
 lsof -P -i:8181
 kill {PID}
+
+# sequence
+lsof -P -i:8181 | awk 'NR==2 {print $2}' | xargs -t -I{} kill {} && git pull && go build && nohup ./test_crud &
 ```
 
 ## [Tool] create struct from ddl
