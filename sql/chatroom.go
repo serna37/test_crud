@@ -58,11 +58,11 @@ func (chtroom *chtroom) Read(userid int) []model.TrnChatRoom {
 		joinedRoomids = append(joinedRoomids, v.ChatRoomId)
 	}
 	var rooms []model.TrnChatRoom
-	where := db.Where("creater_id = ?", userid)
+	//where := db.Where("creater_id = ?", userid)
 	if len(joinedRoomids) != 0 {
-		where = where.Or("id IN ?", joinedRoomids)
+		db.Where("id IN ?", joinedRoomids).Find(&rooms)
+		return rooms
 	}
-	where.Find(&rooms)
 	return rooms
 }
 
