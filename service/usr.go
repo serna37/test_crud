@@ -175,37 +175,39 @@ func (usr *usr) Delete(c *gin.Context) {
 }
 
 func (usr *usr) GetCateTag(c *gin.Context) {
-	usrid := CookieChk(c)
-	if usrid == 0 {
-		return
-	}
+	// XXX cannot carry the cookie from another domein
+//	usrid := CookieChk(c)
+//	if usrid == 0 {
+//		return
+//	}
 	var req model.GetRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: err.Error()})
 		return
 	}
-	if req.Id != usrid {
-		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: "unauthrized"})
-		return
-	}
+//	if req.Id != usrid {
+//		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: "unauthrized"})
+//		return
+//	}
 	response := usr.sql.GetCateTag(req.Id)
 	c.JSON(http.StatusOK, response)
 }
 
 func (usr *usr) GetAllData(c *gin.Context) {
-	usrid := CookieChk(c)
-	if usrid == 0 {
-		return
-	}
+	// XXX cannot carry the cookie from another domein
+//	usrid := CookieChk(c)
+//	if usrid == 0 {
+//		return
+//	}
 	var req model.GetRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: err.Error()})
 		return
 	}
-	if req.Id != usrid {
-		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: "unauthrized"})
-		return
-	}
+//	if req.Id != usrid {
+//		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: "unauthrized"})
+//		return
+//	}
 	response := usr.sql.GetAllData(req.Id)
 	c.JSON(http.StatusOK, response)
 }

@@ -69,19 +69,21 @@ func (chatroom *chatroom) Join(c *gin.Context) {
 
 func (chatroom *chatroom) Read(c *gin.Context) {
 	var req model.ChatRoonRReq
-	usrid := CookieChk(c)
-	if usrid == 0 {
-		return
-	}
+	// XXX cannot carry the cookie from another domein
+//	usrid := CookieChk(c)
+//	if usrid == 0 {
+//		return
+//	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: err.Error()})
 		return
 	}
-	if req.UserId == 0 || usrid != req.UserId {
+	//|| usrid != req.UserId
+	if req.UserId == 0 {
 		c.JSON(http.StatusOK, model.BaseRes{Status: 1, Message: "invalid value"})
 		return
 	}
-	rooms := chatroom.sql.Read(usrid)
+	rooms := chatroom.sql.Read(req.UserId)
 	c.JSON(http.StatusOK, rooms)
 }
 

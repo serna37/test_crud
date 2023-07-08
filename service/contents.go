@@ -28,10 +28,11 @@ func NewContnt() Contnt {
 // Imprementation
 // ==================
 func (contn *contn) Create(c *gin.Context) {
-	usrid := CookieChk(c)
-	if usrid == 0 {
-		return
-	}
+//	usrid := CookieChk(c)
+	// XXX cannot carry the cookie from another domein
+//	if usrid == 0 {
+//		return
+//	}
 	var req model.ContentsCReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: err.Error()})
@@ -46,10 +47,11 @@ func (contn *contn) Create(c *gin.Context) {
 }
 
 func (contn *contn) Update(c *gin.Context) {
-	usrid := CookieChk(c)
-	if usrid == 0 {
-		return
-	}
+	// XXX cannot carry the cookie from another domein
+//	usrid := CookieChk(c)
+//	if usrid == 0 {
+//		return
+//	}
 	var req model.ContentsUReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, model.BaseRes{Status: 1, Message: err.Error()})
