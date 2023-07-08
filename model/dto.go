@@ -38,7 +38,7 @@ type RefTags struct {
 	Id        int    // タグ付けID
 	ContentId int    // コンテンツID
 	TagId     int    `gorm:"references:tag_id"`
-	MstTags   MstTag `gorm:"foreignKey:Id"`
+	MstTags   MstTag `gorm:"foreignKey:TagId"`
 }
 
 func (RefTags) TableName() string { return "trn_contents_tag" }
